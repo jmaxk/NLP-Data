@@ -1,0 +1,38 @@
+package max.nlp.dal.wiktionary.types;
+
+import org.bson.types.ObjectId;
+
+import com.github.jmkgreen.morphia.annotations.Entity;
+import com.github.jmkgreen.morphia.annotations.Id;
+
+@Entity("Translation")
+public class Translation {
+	 @Id   private ObjectId id;
+
+	public Translation(Text source, Text target) {
+		this.source = source;
+		this.target = target;
+	}
+	private Text source;
+	private Text target;
+
+	@Override
+	public String toString() {
+		return "Translation [source=" + source + ", target=" + target + ", prob=" + prob
+				+ ", entropy=" + entropy + "]";
+	}
+	public double getProb() {
+		return prob;
+	}
+	public void setProb(double prob) {
+		this.prob = prob;
+	}
+	public double getEntropy() {
+		return entropy;
+	}
+	public void setEntropy(double entropy) {
+		this.entropy = entropy;
+	}
+	private double prob;
+	private double entropy;
+}

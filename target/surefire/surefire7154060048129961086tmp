@@ -1,0 +1,5 @@
+#surefire
+#Thu Mar 06 20:17:52 EST 2014
+user.dir=/home/jmaxk/workspace/dal
+localRepository=/home/jmaxk/.m2/repository
+basedir=/home/jmaxk/workspace/dal

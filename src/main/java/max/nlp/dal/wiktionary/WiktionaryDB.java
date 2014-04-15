@@ -1,0 +1,227 @@
+package max.nlp.dal.wiktionary;
+
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import max.nlp.dal.wiktionary.types.WiktionaryEntry;
+
+import org.bson.types.ObjectId;
+
+import com.github.jmkgreen.morphia.Datastore;
+import com.github.jmkgreen.morphia.Morphia;
+import com.github.jmkgreen.morphia.query.Query;
+import com.github.jmkgreen.morphia.query.UpdateOperations;
+import com.mongodb.Mongo;
+import com.mongodb.MongoException;
+
+public class WiktionaryDB {
+
+	private final static String dbName = "wiktionary";
+	private final static String dbLocation = "localhost";
+	private final static int dbPort = 27017;
+
+	private static WiktionaryDB db;
+
+	private Datastore ds;
+
+	@SuppressWarnings("deprecation")
+	private WiktionaryDB() {
+
+		try {
+			Morphia morphia = new Morphia();
+			Mongo mongo = new Mongo(dbLocation, dbPort);
+			ds = morphia.createDatastore(mongo, dbName);
+			morphia.map(WiktionaryEntry.class);
+			ds.ensureIndexes();
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (MongoException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public List<WiktionaryEntry> getAllEntries() {
+		Query<WiktionaryEntry> q = ds.createQuery(WiktionaryEntry.class);
+		return q.asList();
+	}
+
+	public List<WiktionaryEntry> getAllEntriesByLanguage(String language) {
+		try {
+			Query<WiktionaryEntry> q = ds.createQuery(WiktionaryEntry.class)
+					.field("language").equal(language);
+			return q.asList();
+		} catch (Exception e) {
+
+		}
+		return null;
+	}
+
+	public Iterator<WiktionaryEntry> getItr() {
+		try {
+			Query<WiktionaryEntry> q = ds.createQuery(WiktionaryEntry.class);
+			return q.iterator();
+		} catch (Exception e) {
+
+		}
+		return null;
+	}
+
+	public Iterator<WiktionaryEntry> getLangItr(String language) {
+		try {
+			Query<WiktionaryEntry> q = ds.createQuery(WiktionaryEntry.class)
+					.field("language").equal(language);
+			return q.iterator();
+		} catch (Exception e) {
+
+		}
+		return null;
+	}
+
+	public Iterator<WiktionaryEntry> getAllEntriesByLanguageIterator(
+			String language) {
+		Query<WiktionaryEntry> q = ds.createQuery(WiktionaryEntry.class)
+				.field("language").equal(language);
+		return q.iterator();
+	}
+
+	public void saveEntry(WiktionaryEntry e) {
+		ds.save(e);
+	}
+
+	public static WiktionaryDB getInstance() {
+		if (db == null) {
+			db = new WiktionaryDB();
+		}
+		return db;
+	}
+
+	public void update(WiktionaryEntry e, String field, Object value) {
+		Query<WiktionaryEntry> updateQuery = ds
+				.createQuery(WiktionaryEntry.class).field("_id")
+				.equal(e.getId());
+		UpdateOperations<WiktionaryEntry> ops = ds.createUpdateOperations(
+				WiktionaryEntry.class).add(field, value);
+		ds.update(updateQuery, ops);
+	}
+
+	public WiktionaryEntry findByID(ObjectId id) {
+		Query<WiktionaryEntry> query = ds.createQuery(WiktionaryEntry.class)
+				.field("_id").equal(id);
+		return query.asList().get(0);
+	}
+
+	public WiktionaryEntry findByIdiom(String idiom) {
+		Query<WiktionaryEntry> query = ds.createQuery(WiktionaryEntry.class)
+				.field("idiom").equal(idiom);
+		return query.asList().get(0);
+	}
+
+	// not tested, may not work
+	public void update(WiktionaryEntry e, String field, List<Object> values) {
+		Query<WiktionaryEntry> updateQuery = ds
+				.createQuery(WiktionaryEntry.class).field("_id")
+				.equal(e.getId());
+		UpdateOperations<WiktionaryEntry> ops = ds.createUpdateOperations(
+				WiktionaryEntry.class).addAll(field, values, false);
+		ds.update(updateQuery, ops);
+	}
+
+	// public void getSyns(String word){
+	// try {
+	// MongoClient mongoClient = new MongoClient();
+	// DBCollection coll =
+	// mongoClient.getDB("wiktionary").getCollection("WiktionaryEntry");
+	// System.out.println(coll.count());
+	// BasicDBObject query = new BasicDBObject("synonyms", word);
+	// DBCursor r = coll.find(query);
+	// while (r.hasNext())
+	// System.out.println(r.next());
+	// } catch (UnknownHostException e) {
+	// // TODO Auto-generated catch block
+	// e.printStackTrace();
+	// }
+	// }
+
+	public List<WiktionaryEntry> getSynsAsEntries(String word) {
+
+		Query<WiktionaryEntry> query = ds.createQuery(WiktionaryEntry.class)
+				.filter("synonyms in", word);
+		return query.asList();
+
+	}
+
+	public List<String> getSynsAsWords(String word) {
+		List<String> syns = new ArrayList<String>();
+		Query<WiktionaryEntry> query = ds.createQuery(WiktionaryEntry.class)
+				.filter("synonyms in", word);
+		for (WiktionaryEntry e : query.asList()) {
+			syns.addAll(e.getSynonyms());
+		}
+		return syns;
+
+	}
+
+	public List<String> getAntsAsWords(String word) {
+		List<String> syns = new ArrayList<String>();
+		Query<WiktionaryEntry> query = ds.createQuery(WiktionaryEntry.class)
+				.filter("antonyms in", word);
+		for (WiktionaryEntry e : query.asList()) {
+			syns.addAll(e.getSynonyms());
+		}
+		return syns;
+
+	}
+
+	public List<WiktionaryEntry> getRelation(String relation, String word) {
+
+		Query<WiktionaryEntry> query = ds.createQuery(WiktionaryEntry.class)
+				.filter(relation + " in", word);
+		return query.asList();
+
+	}
+
+	public List<WiktionaryEntry> getIdioms(String language) {
+
+		List<WiktionaryEntry> idioms = new ArrayList<WiktionaryEntry>();
+		WiktionaryDB db = WiktionaryDB.getInstance();
+		Iterator<WiktionaryEntry> itr = db.getLangItr(language);
+		while (itr.hasNext()) {
+			WiktionaryEntry e = itr.next();
+			if (e.isIdiomatic()) {
+				idioms.add(e);
+			}
+		}
+		return idioms;
+	}
+	
+	
+
+	public List<WiktionaryEntry> getIdioms() {
+
+		List<WiktionaryEntry> idioms = new ArrayList<WiktionaryEntry>();
+		WiktionaryDB db = WiktionaryDB.getInstance();
+		Iterator<WiktionaryEntry> itr = db.getItr();
+		while (itr.hasNext()) {
+			WiktionaryEntry e = itr.next();
+			if (e.isIdiomatic()) {
+				idioms.add(e);
+			}
+		}
+		return idioms;
+	}
+
+	public WiktionaryEntry findIdiom(ObjectId id) {
+		try {
+			Query<WiktionaryEntry> q = ds.createQuery(WiktionaryEntry.class)
+					.field("_id").equal(id).limit(1);
+			return q.asList().get(0);
+		} catch (Exception e) {
+			System.out.println(e.getStackTrace());
+		}
+		return null;
+	}
+}

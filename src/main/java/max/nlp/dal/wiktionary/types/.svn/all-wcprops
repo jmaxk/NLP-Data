@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/3/trunk/dal/src/main/java/max/nlp/dal/wiktionary/types
+END
+Text.java
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/!svn/ver/3/trunk/dal/src/main/java/max/nlp/dal/wiktionary/types/Text.java
+END
+WiktionaryEntry.java
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/!svn/ver/3/trunk/dal/src/main/java/max/nlp/dal/wiktionary/types/WiktionaryEntry.java
+END
+InterwikiLink.java
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/!svn/ver/3/trunk/dal/src/main/java/max/nlp/dal/wiktionary/types/InterwikiLink.java
+END
+WiktionaryTranslation.java
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/!svn/ver/3/trunk/dal/src/main/java/max/nlp/dal/wiktionary/types/WiktionaryTranslation.java
+END
+Section.java
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/!svn/ver/3/trunk/dal/src/main/java/max/nlp/dal/wiktionary/types/Section.java
+END
+Definition.java
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/!svn/ver/3/trunk/dal/src/main/java/max/nlp/dal/wiktionary/types/Definition.java
+END
+Translation.java
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/!svn/ver/3/trunk/dal/src/main/java/max/nlp/dal/wiktionary/types/Translation.java
+END

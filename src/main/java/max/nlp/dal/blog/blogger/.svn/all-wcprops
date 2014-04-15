@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/3/trunk/dal/src/main/java/max/nlp/dal/blog/blogger
+END
+BloggerDB.java
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/!svn/ver/3/trunk/dal/src/main/java/max/nlp/dal/blog/blogger/BloggerDB.java
+END
+BlogAuthorProfile.java
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/!svn/ver/3/trunk/dal/src/main/java/max/nlp/dal/blog/blogger/BlogAuthorProfile.java
+END
+ParsedLocation.java
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/!svn/ver/3/trunk/dal/src/main/java/max/nlp/dal/blog/blogger/ParsedLocation.java
+END
+BloggerBlog.java
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/!svn/ver/3/trunk/dal/src/main/java/max/nlp/dal/blog/blogger/BloggerBlog.java
+END
+BloggerPost.java
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/!svn/ver/3/trunk/dal/src/main/java/max/nlp/dal/blog/blogger/BloggerPost.java
+END
