@@ -1,0 +1,219 @@
+package max.nlp.dal.blog.blogger;
+
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.bson.types.ObjectId;
+
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
+import com.mongodb.MongoClient;
+import com.mongodb.WriteResult;
+
+public class BloggerDB {
+
+	private static BloggerDB self;
+	private DB db;
+	private DBCollection profiles;
+	private DBCollection blogs;
+	private DBCollection icf;
+
+	private BloggerDB() {
+		try {
+			MongoClient mongoClient = new MongoClient("localhost", 27017);
+			db = mongoClient.getDB("blogz");
+			profiles = db.getCollection("profiles");
+			icf = db.getCollection("icf");
+
+			blogs = db.getCollection("blogs");
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public WriteResult updatePosts(DBObject updateQuery, DBObject updateCommand) {
+
+		try {
+			WriteResult result = blogs.update(updateQuery, updateCommand, true,
+					true);
+			return result;
+
+		} catch (Exception e) {
+			System.out.println("ok");
+		}
+		return null;
+	}
+
+	public void removeBlog(DBObject blog) {
+		blogs.remove(blog);
+	}
+
+	public List<BasicDBObject> findBlogsForProfile(ObjectId profileId) {
+		BasicDBObject query = new BasicDBObject();
+		query.put("authorID", profileId);
+		DBCursor cursor = blogs.find(query);
+		List<BasicDBObject> matchingBlogs = new ArrayList<BasicDBObject>();
+		while (cursor.hasNext()) {
+			BasicDBObject blog = (BasicDBObject) cursor.next();
+			matchingBlogs.add(blog);
+		}
+		return matchingBlogs;
+	}
+
+	public DBCursor getProfileIterator() {
+		DBCursor cursor = profiles.find();
+		return cursor;
+	}
+
+	public BlogAuthorProfile findProfileForBlog(final BloggerBlog b) {
+		ArrayList<String> urlAsStr = new ArrayList<String>() {
+			{
+				add(b.getUrl());
+			}
+		};
+
+		BasicDBObject query = new BasicDBObject("blogs", new BasicDBObject(
+				"$in", urlAsStr));
+		BlogAuthorProfile p = new BlogAuthorProfile(
+				((DBObject) profiles.findOne(query)));
+		return p;
+	}
+
+	public DBCursor getBlogIterator() {
+		DBCursor cursor = blogs.find();
+		return cursor;
+
+	}
+
+	public static BloggerDB getInstance() {
+		if (self == null) {
+			self = new BloggerDB();
+		}
+		return self;
+	}
+
+	public void saveProfile(BlogAuthorProfile p) {
+		profiles.save(p);
+	}
+
+	public BlogAuthorProfile findProfileByURL(String url) {
+		BasicDBObject query = new BasicDBObject();
+		query.put("url", url);
+		DBCursor cursor = profiles.find(query);
+		while (cursor.hasNext())
+			return new BlogAuthorProfile(cursor.next().toMap());
+		return null;
+	}
+
+	public BloggerBlog findBlogbyURL(String url) {
+		BasicDBObject query = new BasicDBObject();
+		query.put("url", url);
+		DBCursor cursor = blogs.find(query);
+		while (cursor.hasNext())
+			return new BloggerBlog(cursor.next().toMap());
+		return null;
+	}
+
+	public void saveBlog(BloggerBlog b) {
+		try {
+			blogs.save(b);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public BloggerBlog findBlogByBloggerId(String id) {
+		BasicDBObject query = new BasicDBObject();
+		query.put("blogID", id);
+		DBObject dbObj = blogs.findOne(query);
+		return new BloggerBlog(dbObj.toMap());
+	}
+
+	public DBObject findProfilesById(String id) {
+		BasicDBObject query = new BasicDBObject();
+		query.put("_id", new ObjectId(id));
+		DBObject dbObj = blogs.findOne(query);
+		return dbObj;
+	}
+
+	public DBCursor findBlog(DBObject query) {
+		DBCursor res = blogs.find(query);
+		return res;
+	}
+
+	public void updateBlog(DBObject oldObj, DBObject newObj) {
+
+		blogs.update(oldObj, newObj);
+	}
+
+	public void updateProfile(DBObject oldObj, DBObject newObj) {
+
+		profiles.update(oldObj, newObj);
+	}
+
+	public List<BlogAuthorProfile> getProfilesForCity(String city) {
+		List<BlogAuthorProfile> matchingProfiles = new ArrayList<BlogAuthorProfile>();
+		BasicDBObject query = new BasicDBObject();
+		query.put("parsedLocation.city", city);
+		DBCursor itr = profiles.find(query);
+		while (itr.hasNext()) {
+			matchingProfiles.add(new BlogAuthorProfile(itr.next()));
+		}
+		return matchingProfiles;
+	}
+
+	public List<BlogAuthorProfile> getProfilesForState(String state) {
+		List<BlogAuthorProfile> matchingProfiles = new ArrayList<BlogAuthorProfile>();
+		BasicDBObject query = new BasicDBObject();
+		query.put("parsedLocation.state", state);
+		DBCursor itr = profiles.find(query);
+		while (itr.hasNext()) {
+			matchingProfiles.add(new BlogAuthorProfile(itr.next()));
+		}
+		return matchingProfiles;
+	}
+
+	public List<BlogAuthorProfile> getProfilesWithKV(String key, String value) {
+		List<BlogAuthorProfile> matchingProfiles = new ArrayList<BlogAuthorProfile>();
+		BasicDBObject query = new BasicDBObject();
+		query.put(key, value);
+		DBCursor itr = profiles.find(query);
+		while (itr.hasNext()) {
+			matchingProfiles.add(new BlogAuthorProfile(itr.next()));
+		}
+		return matchingProfiles;
+	}
+
+	public void saveICF(Map<String, Double> icfData) {
+		BasicDBObject icfEntry = new BasicDBObject();
+		for ( Entry<String, Double>  e: icfData.entrySet()){
+			String key = e.getKey().replaceAll("\\$","").replaceAll("\\.","");
+			icfEntry.put(key, e.getValue());
+		}
+		icf.insert(icfEntry);
+	}
+
+	public Map loadICF() {
+		return icf.findOne().toMap();
+	}
+
+	public static void main(String[] args) {
+		BloggerDB adb = BloggerDB.getInstance();
+
+//		HashMap<String, Double> data = new HashMap<String, Double>();
+//		data.put("$.$t.he", .001);
+//		data.put("cat", .002);
+//		adb.saveICF(data);
+		Map icfd = adb.loadICF();
+		for (Object e : icfd.entrySet()){
+			System.out.println(e);
+		}
+	}
+}

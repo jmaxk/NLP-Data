@@ -1,0 +1,70 @@
+package max.nlp.dal.blog.blogger;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.bson.types.ObjectId;
+
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.services.blogger.model.Post;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
+
+public class BloggerPost extends BasicDBObject {
+	private static final JacksonFactory jsonFactory = new JacksonFactory();
+
+	private String post = "post";
+	private String cleanContent = "cleanContent";
+	
+	
+	public ObjectId getId(){
+		return (ObjectId) get("_id");
+	}
+	public void setCleanContent(String cleantxt){
+		put(cleanContent, cleantxt);
+	}
+	
+	public String  getContent(){
+		return getOriginalPost().getContent();
+	}
+	
+	
+	public String  getCleanContent(){
+		return (String) get(cleanContent);
+	}
+
+
+	public void fromBloggerPost(Post p) {
+			Object o = com.mongodb.util.JSON.parse(p.toString());
+			BasicDBObject postAsDBObject = (BasicDBObject) o;
+			put(post, postAsDBObject);
+	}
+	
+	public Post getOriginalPost(){
+		try {
+			//this will need to change, but it requiers a new db....because now the object is post, but it need sa field post
+//			BasicDBObject postAsDBObject = (BasicDBObject) get(post);
+			Post usablePost = jsonFactory.fromString(this.toString(), Post.class);
+			return usablePost;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+
+
+	}
+	
+	public BloggerPost(DBObject dbo) {
+		super(dbo.toMap());
+	}
+	
+	public static List<BloggerPost> fromList(List<BasicDBObject> googlePosts){
+		ArrayList<BloggerPost> posts = new ArrayList<BloggerPost>();
+		for (BasicDBObject gp: googlePosts){
+			posts.add(new BloggerPost(gp));
+		}
+		return posts;
+	}
+}
