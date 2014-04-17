@@ -245,7 +245,7 @@ public class BloggerDB {
 		return matchingProfiles;
 	}
 
-	public WriteResult updatePost(BloggerPost p, String field, List newval,
+	public WriteResult updatePost(BloggerPost p, String field, @SuppressWarnings("rawtypes") List newval,
 			BloggerBlog b) {
 		BasicDBObject query = new BasicDBObject();
 		query.append("blogID", b.getblogID());
