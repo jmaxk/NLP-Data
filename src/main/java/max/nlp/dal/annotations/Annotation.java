@@ -3,6 +3,11 @@ package max.nlp.dal.annotations;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
+/**
+ * @author max
+ * an annotation
+ *
+ */
 public class Annotation extends BasicDBObject {
 
 	private static final long serialVersionUID = 1L;
